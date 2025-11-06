@@ -612,6 +612,7 @@ console.log("data", (window as any).data);
 
       // Split context into sentences
       (window as any).response = parseWrappedJson((window as any).data.answer);
+      console.log("answer", (window as any).response);
       (window as any).responseCitationsRaw = splitContext((window as any).response.support.quote);
  
       const awaitCitation = await searchCitation((window as any).responseCitationsRaw);
