@@ -547,7 +547,16 @@ const aiErrorResponse: ChatMessage = {
        (window as any).pageCitations = waitForCitationsList;
       console.log("Page citations:", (window as any).pageCitations);
    //const awaitCitation = await searchCitation((window as any).responseCitationsRaw);
+// Lọc responseCitations, chỉ giữ lại những phần tử có index tương ứng 
+// trong pageCitations khác -1
+(window as any).responseCitations = (window as any).responseCitations.filter(
+  (_: any, index: number) => (window as any).pageCitations[index] !== -1
+);
 
+// Sau đó cũng lọc pageCitations để loại bỏ các giá trị -1
+(window as any).pageCitations = (window as any).pageCitations.filter(
+  (value: number) => value !== -1
+);
     // Simulate AI response
     setTimeout(
       () => {
@@ -714,7 +723,16 @@ const aiErrorResponse: ChatMessage = {
        (window as any).pageCitations = waitForCitationsList;
       console.log("Page citations:", (window as any).pageCitations);
    //const awaitCitation = await searchCitation((window as any).responseCitationsRaw);
+// Lọc responseCitations, chỉ giữ lại những phần tử có index tương ứng 
+// trong pageCitations khác -1
+(window as any).responseCitations = (window as any).responseCitations.filter(
+  (_: any, index: number) => (window as any).pageCitations[index] !== -1
+);
 
+// Sau đó cũng lọc pageCitations để loại bỏ các giá trị -1
+(window as any).pageCitations = (window as any).pageCitations.filter(
+  (value: number) => value !== -1
+);
     // Simulate AI response
     setTimeout(
       () => {
