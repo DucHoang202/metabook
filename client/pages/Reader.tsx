@@ -543,7 +543,7 @@ export default function Reader() {
 
 
 
-      if (!(window as any).response || !(window as any).response.support || !(window as any).response.support.quote) {
+      if (!(window as any).response) {
         throw new Error("Invalid response structure from API");
       }
       
