@@ -386,7 +386,7 @@ setBookData({
                   <input
                     id="file-upload"
                     type="file"
-                    accept=".pdf"
+accept=".pdf,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                     className="hidden"
                     onChange={handleFileSelect}
                   />
