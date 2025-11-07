@@ -368,7 +368,7 @@ async function getCitationsList(list: string[]) {
   }
 
   await viewerWindow.PDFViewerApplication.initializedPromise;
-
+   console.log("0/2")
   const eventBus = viewerWindow.PDFViewerApplication.eventBus;
   const findController = viewerWindow.PDFViewerApplication.findController;
   const citationPages: number[] = [];
