@@ -163,6 +163,7 @@ export default function Reader() {
           item.book_id?.toLowerCase().includes((window as any).bookId?.toLowerCase() || "")
         );
         (window as any).responseBook = responseBookMatch[0];
+        console.log((window as any).responseBook?.pdf_url);
       } else {
         console.warn("Unexpected API format:", responseBook);
         (window as any).responseBook = [];
