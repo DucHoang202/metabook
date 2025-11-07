@@ -194,7 +194,7 @@ SAMPLE_MESSAGES = [
     id: "1",
     type: "ai",
     content:
-      `Chào bạn! Tôi đã phân tích toàn bộ nội dung cuốn sách ${(window as any).responseBook?.title}. Bạn có thể hỏi tôi bất kỳ điều gì về nội dung sách, tôi sẽ trả lời và cung cấp trích dẫn cụ thể từ các trang liên quan.`,
+      `Chào bạn! Tôi đã phân tích toàn bộ nội dung cuốn sách. Bạn có thể hỏi tôi bất kỳ điều gì về nội dung sách, tôi sẽ trả lời và cung cấp trích dẫn cụ thể từ các trang liên quan.`,
     timestamp: new Date(),
     isError: false
   
@@ -738,45 +738,7 @@ function parseWrappedJson(answerStr: string) {
   const handlePresetQuestion = (question: string) => {
     setInputMessage(question);
     // Auto send the preset question
-    setTimeout(() => {
-      const userMessage: ChatMessage = {
-        id: Date.now().toString(),
-        type: "user",
-        content: question,
-        timestamp: new Date(),
-            citations: [],
-                  isError: false
-
-      };
-
-      setMessages((prev) => [...prev, userMessage]);
-      setInputMessage("");
-      setIsLoading(true);
-
-      // Simulate AI response
-    setTimeout(
-      () => {
-        const aiResponse: ChatMessage = {
-          id: (Date.now() + 1).toString(),
-          type: "ai",
-          content: (window as any).data.answer.answer,
-          //pageReferences: (window as any).pageNumbers, 
-          pageReferences: Array.from({length: (window as any).responseCitations.length }, (_, i) => i + 1), //here
-          timestamp: new Date(),
-          citations: [],
-                isError: false
-
-
-        };
-        
-        setMessages((prev) => [...prev, aiResponse]);
-
-        setIsLoading(false);
-      
-      },
-      1500 + Math.random() * 1000,
-    );
-    }, 100);
+    handleSendMessage();
   };
 
   const [term, setTerm] = useState("");
