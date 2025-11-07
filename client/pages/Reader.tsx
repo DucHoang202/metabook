@@ -163,6 +163,7 @@ export default function Reader() {
           item.book_id?.toLowerCase().includes((window as any).bookId?.toLowerCase() || "")
         );
         (window as any).responseBook = responseBookMatch[0];
+        console.log("pdf", `/pdfjs-build/web/viewer.html?file=${ (window as any).responseBook.pdf_url}`)
       } else {
         console.warn("Unexpected API format:", responseBook);
         (window as any).responseBook = [];
@@ -786,7 +787,7 @@ export default function Reader() {
           id="pdfFrame"
           ref={iframeRef}
           title="PDF Viewer"
-          src={`/pdfjs-build/web/viewer.html?file=https://metabookbe.metapress.ai/fs/books/WTTStudio%20AI%20-%20T%E1%BA%A1o%20b%C3%A0i%20vi%E1%BA%BFt%20b%E1%BA%B1ng%20Smart%20Paragraph%20(2).pdf`}
+          src={`/pdfjs-build/web/viewer.html?file=${ (window as any).responseBook.pdf_url}`}
           width="100%"
           height="800px"
         />
