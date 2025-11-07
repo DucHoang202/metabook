@@ -403,21 +403,34 @@ async function searchAndWaitForResult(
 ): Promise<void> {
   console.time(`⏱ searchAndWaitForResult("${term}")`);
   console.log("🔍 Bắt đầu tìm kiếm:", term);
-
-  return new Promise((resolve) => {
+  
+  return new Promise((resolve, reject) => {
     const startDispatch = performance.now();
-
+    let completed = false;
+    
+    // Timeout 5 giây
+    const timeoutId = setTimeout(() => {
+      if (!completed) {
+        completed = true;
+        eventBus.off("updatefindcontrolstate", onUpdate);
+        console.log("⏰ Timeout sau 5s - Dừng tìm kiếm");
+        console.timeEnd(`⏱ searchAndWaitForResult("${term}")`);
+        resolve(); // hoặc reject(new Error("Search timeout")) nếu muốn báo lỗi
+      }
+    }, 5000);
+    
     const onUpdate = (e: any) => {
       console.log("📡 Nhận sự kiện updatefindcontrolstate:", e.state);
-
       if (e.state === 0 || e.state === 1) {
+        if (completed) return;
+        completed = true;
+        
+        clearTimeout(timeoutId);
         const afterEvent = performance.now();
         console.log(
           `✅ Sự kiện hoàn tất sau ${(afterEvent - startDispatch).toFixed(2)}ms`
         );
-
         eventBus.off("updatefindcontrolstate", onUpdate);
-
         console.time("⏳ Đợi cập nhật pageMatches");
         setTimeout(() => {
           console.timeEnd("⏳ Đợi cập nhật pageMatches");
@@ -426,10 +439,9 @@ async function searchAndWaitForResult(
         }, 100);
       }
     };
-
+    
     console.time("🕐 Gửi sự kiện find");
     eventBus.on("updatefindcontrolstate", onUpdate);
-
     viewerWindow.PDFViewerApplication.eventBus.dispatch("find", {
       type: "find",
       query: term,
