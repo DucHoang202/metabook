@@ -735,10 +735,121 @@ function parseWrappedJson(answerStr: string) {
   }
 }
 
-  const handlePresetQuestion = (question: string) => {
-    setInputMessage(question);
-    // Auto send the preset question
-    handleSendMessage();
+  const handlePresetQuestion = async(question: string) => {
+    const chat = document.getElementById("scrollMessages");
+    if (!inputMessage.trim()) return;
+
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      type: "user",
+      content: inputMessage,
+      timestamp: new Date(),
+      citations: [],
+      isError: false,
+
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInputMessage("");
+    setIsLoading(true);
+      
+    const requestBody: QueryRequest = {
+      question: userMessage.content,
+      book_id: (window as any).bookId,
+      k: 30,
+      target_chars: 6600,
+      dry_run: false    };
+
+          chat.scrollTop = chat.scrollHeight;
+    try {
+      
+      const res = await fetch(API_URL + '/query', {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      //Get data
+      (window as any).responseData = await res.json();
+      (window as any).data = (window as any).responseData as QueryResponse;
+console.log((window as any).data);
+
+      // Split context into sentences
+      (window as any).response = parseWrappedJson((window as any).data.answer);
+      (window as any).responseCitationsRaw = splitContext((window as any).response.support.quote);
+ 
+      const awaitCitation = await searchCitation((window as any).responseCitationsRaw);
+      (window as any).responseCitations = awaitCitation;
+      console.log("Response citations:", (window as any).responseCitations);
+ 
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      setError('Có lỗi xảy ra khi gọi API: ' + errorMessage);
+      console.error('Error:', err);
+
+      //Khung chat ai sẽ hiển thị lỗi
+    // Hiển thị lỗi trong chat AI
+const aiErrorResponse: ChatMessage = {
+  id: (Date.now() + 1).toString(),
+  type: "ai",
+  content: (
+    <div>
+      ⚠️ Đã có lỗi xảy ra. Ấn để gửi lại{' '}
+      <button 
+        className="resendMessage font-normal underline text-blue-600 hover:text-blue-800 cursor-pointer"
+        onClick={() => {
+          const lastUserMessage = userMessage.content; // Tin nhắn người dùng cuối cùng
+          if (lastUserMessage) {
+            setInputMessage(lastUserMessage as string);
+          }
+        }}
+      >
+        Resend
+      </button>
+    </div>
+  ),
+  timestamp: new Date(),
+  citations: [],
+  isError: true
+};
+
+    setMessages((prev) => [...prev, aiErrorResponse]);
+    setIsLoading(false);    
+  } finally {
+  
+    }
+         const waitForCitationsList = await getCitationsList((window as any).responseCitations);
+       (window as any).pageCitations = waitForCitationsList;
+      console.log("Page citations:", (window as any).pageCitations);
+   //const awaitCitation = await searchCitation((window as any).responseCitationsRaw);
+
+    // Simulate AI response
+    setTimeout(
+      () => {
+        const aiResponse: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          type: "ai",
+          content: (window as any).response.answer,
+          // pageReferences: Array.from({length: (window as any).responseCitations.length}, ),
+          pageReferences: (window as any).pageCitations,
+          timestamp: new Date(),
+          citations: (window as any).responseCitations,
+          isError: false
+        };
+        console.log("AI response:", aiResponse.pageReferences);
+        setMessages((prev) => [...prev, aiResponse]);
+        setIsLoading(false);
+      
+      },
+      1500 + Math.random() * 1000,
+    );
+  
   };
 
   const [term, setTerm] = useState("");
