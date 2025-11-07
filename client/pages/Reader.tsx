@@ -209,7 +209,8 @@ export default function Reader() {
     const iframe = document.getElementById("pdfFrame") as HTMLIFrameElement;
     const viewerWindow = (iframe.contentWindow as any);
 
-    if (!viewerWindow.PDFViewerApplication) {
+    if (!viewerWindow?.PDFViewerApplication) {
+      console.error("PDFViewerApplication chưa sẵn sàng");
       return;
     }
 
@@ -228,13 +229,18 @@ export default function Reader() {
     const iframe = document.getElementById("pdfFrame") as HTMLIFrameElement;
     const viewerWindow = iframe.contentWindow as any;
 
-    if (!viewerWindow.PDFViewerApplication) {
+    if (!viewerWindow?.PDFViewerApplication) {
       return [];
     }
 
     await viewerWindow.PDFViewerApplication.initializedPromise;
 
     const pdfDocument = viewerWindow.PDFViewerApplication.pdfDocument;
+    if (!pdfDocument) {
+      console.error("pdfDocument chưa sẵn sàng");
+      return [];
+    }
+
     const numPages = pdfDocument.numPages;
     const results: number[] = [];
 
@@ -295,7 +301,17 @@ export default function Reader() {
     const iframe = document.getElementById("pdfFrame") as HTMLIFrameElement;
     const viewerWindow = (iframe.contentWindow as any);
 
+    if (!viewerWindow?.PDFViewerApplication) {
+      console.error("PDFViewerApplication chưa sẵn sàng");
+      return "";
+    }
+
     const pdf = viewerWindow.PDFViewerApplication.pdfDocument;
+    if (!pdf) {
+      console.error("pdfDocument chưa sẵn sàng");
+      return "";
+    }
+
     let fullText = "";
 
     for (let i = 1; i <= pdf.numPages; i++) {
