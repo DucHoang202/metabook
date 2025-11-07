@@ -737,6 +737,7 @@ function parseWrappedJson(answerStr: string) {
 
   const handlePresetQuestion = async(question: string) => {
     const chat = document.getElementById("scrollMessages");
+    let inputMessage = question;
     if (!inputMessage.trim()) return;
 
     const userMessage: ChatMessage = {
