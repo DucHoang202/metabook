@@ -237,72 +237,7 @@ async function searchPagesForTerm(term: string) {
         findPrevious: false,
       });
     }
-/**
- * Lấy danh sách trang dựa vào quote array đã qua splitContext.
- *
- * @param term Mảng chuỗi (string[]) chứa các đoạn quote đã qua splitContext
- * @returns Promise<number[]> Danh sách số trang tìm thấy
- */
-async function searchPagesForTermList(term: string[]): Promise<number[]> {
-  const iframe = document.getElementById("pdfFrame") as HTMLIFrameElement;
-  const viewerWindow = iframe.contentWindow as any;
 
-  if (!viewerWindow.PDFViewerApplication) {
-    return [];
-  }
-
-  await viewerWindow.PDFViewerApplication.initializedPromise;
-
-  const pdfDocument = viewerWindow.PDFViewerApplication.pdfDocument;
-  const numPages = pdfDocument.numPages;
-  const results: number[] = [];
-
-  for (let i = 1; i <= numPages; i++) {
-    const page = await pdfDocument.getPage(i);
-    const textContent = await page.getTextContent();
-
-    // Sắp xếp các text items theo vị trí (y giảm dần, x tăng dần)
-    const items = textContent.items.sort((a: any, b: any) => {
-      const yDiff = b.transform[5] - a.transform[5]; // So sánh y (từ trên xuống)
-      if (Math.abs(yDiff) > 5) return yDiff > 0 ? 1 : -1; // Khác hàng
-      return a.transform[4] - b.transform[4]; // Cùng hàng, sắp xếp theo x
-    });
-
-    // Ghép text với logic khoảng cách thông minh
-    let text = '';
-    let lastItem: any = null;
-
-    for (const item of items) {
-      if (!item.str) continue;
-
-      if (lastItem) {
-        const lastY = lastItem.transform[5];
-        const currentY = item.transform[5];
-        const lastX = lastItem.transform[4] + lastItem.width;
-        const currentX = item.transform[4];
-
-        // Khác hàng
-        if (Math.abs(lastY - currentY) > 5) {
-          text += '\n';
-        }
-        // Cùng hàng nhưng có khoảng cách lớn
-        else if (currentX - lastX > 10) {
-          text += ' ';
-        }
-      }
-
-      text += item.str;
-      lastItem = item;
-    }
-
-    // Tìm kiếm các term trong text
-    if (term.some(t => text.toLowerCase().includes(t.toLowerCase()))) {
-      results.push(i);
-    }
-  }
-console.log("Search results for terms:", term, "=> pages:", results);
-  return results;
-}
 
 
   const handlePageChange = (newPage: number) => {
@@ -357,148 +292,11 @@ function getTwoSubsequentSentences(sentence1, sentence2, fullText) {
     setIsFullscreen(!isFullscreen);
   };
 
-  const getPDFFile = async () => {
-
-  }
-  function isQuiz(context) {
-    if (context.includes("**Đáp án:**")) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-type QuizItem = {
-  question: string;
-  answers: string[];
-  correct: string | null;
-};
-const fakeData: QuizItem[] = [
-  {
-    "question": "Trái đất quay quanh gì?",
-    "answers": [
-      "A. Mặt trăng",
-      "B. Mặt trời",
-      "C. Sao Hỏa",
-      "D. Sao Kim"
-    ],
-    "correct": "B"
-  },
-  {
-    "question": "2 + 2 = ?",
-    "answers": [
-      "A. 3",
-      "B. 4",
-      "C. 5",
-      "D. 22"
-    ],
-    "correct": "B"
-  }
-]
-
-function splitByCau(text: string): QuizItem[] {
-  const regex = /\*\*Câu\s+(\d+):\*\*/g;
-  const result: QuizItem[] = [];
-  const matches = Array.from(text.matchAll(regex));
-
-  for (let i = 0; i < matches.length; i++) {
-    const start = matches[i].index!;
-    const sliceEnd = i < matches.length - 1 ? matches[i + 1].index! : text.length;
-    const block = text.slice(start, sliceEnd).trim();
-
-    // Lấy câu hỏi
-    const quesMatch = block.match(/\*\*Câu\s+\d+:\*\*(.*?\?)/s);
-    const question = quesMatch ? quesMatch[1].trim() : "";
-
-    // Lấy đáp án
-    const answers = block.match(/[A-Z]\.\s.*$/gm) || [];
-
-    // Lấy đáp án đúng (**Đáp án:** X)
-    const correctMatch = block.match(/\*\*Đáp án:\*\*\s*([A-Z])/);
-    const correct = correctMatch ? correctMatch[1] : null;
-
-    result.push({ question, answers, correct });
-  }
-  
-  return result;
-}
-
-function RenderQuizForm({ data }: { data: QuizItem[] }) {
-  // state lưu đáp án mà user chọn
-  const [selected, setSelected] = useState<Record<string, string>>({});
-
-  const handleClick = (quizId: number, value: string, correct: string) => {
-    setSelected((prev) => ({
-      ...prev,
-      [quizId]: value, // lưu lựa chọn
-    }));
-  };
-
-  return (
-    <div>
-      {data.map((item, idx) => {
-        const chosen = selected[idx]; // đáp án mà user chọn
-
-        return (
-          <form key={idx} id={`quiz-${idx}`} className="mb-4 p-3 border rounded">
-            <p className="font-bold mb-2">{item.question}</p>
-
-            {item.answers.map((ans, i) => {
-              const value = ans.split(".")[0].trim(); // lấy A, B, C, D
-              const isCorrect = value === item.correct;
-
-              // quyết định class để highlight
-              let btnClass = "block w-full text-left p-2 mb-1 rounded ";
-              if (chosen) {
-                if (value === chosen) {
-                  btnClass += isCorrect ? "bg-green-300" : "bg-red-300";
-                } else if (isCorrect) {
-                  btnClass += "bg-green-100"; // hiện đáp án đúng khi đã chọn
-                } else {
-                  btnClass += "bg-gray-100";
-                }
-              } else {
-                btnClass += "bg-gray-100 hover:bg-gray-200";
-              }
-
-              return (
-                <button
-                  key={i}
-                  type="button"
-                  value={value}
-                  onClick={() => handleClick(idx, value, item.correct)}
-                  className={btnClass}
-                >
-                  {ans}
-                </button>
-              );
-            })}
-          </form>
-        );
-      })}
-    </div>
-  );
-}
-const quizData1: QuizItem[] = [
-  {
-    question: "Trái đất quay quanh gì?",
-    answers: ["A. Mặt trăng", "B. Mặt trời", "C. Sao Hỏa", "D. Sao Kim"],
-    correct: "B",
-  },
-  {
-    question: "2 + 2 = ?",
-    answers: ["A. 3", "B. 4", "C. 5", "D. 22"],
-    correct: "B",
-  },
-];
-  function renderForm(quizData) {
-  return (
-    <div className="p-5">
-      <h1 className="text-xl font-bold mb-4">Quiz Demo</h1>
-      <RenderQuizForm data={quizData} />
-    </div>
-  );
-}
+/**
+ * @params
+ * list: mảng các câu trích dẫn đã qua splitContext
+ * @return mảng các trang đầu tiên chứa từng câu trích dẫn
+ */
 /**
  * @params
  * list: mảng các câu trích dẫn đã qua splitContext
@@ -520,8 +318,14 @@ async function getCitationsList(list: string[]) {
   const citationPages: number[] = [];
 
   for (const term of list) {
-    // Tìm kiếm từng term
+    // Reset kết quả tìm kiếm trước khi tìm mới
+    findController.reset();
+    
+    // Tìm kiếm từng term và đợi kết quả
     await searchAndWaitForResult(term, eventBus, viewerWindow);
+    
+    // Đợi thêm một chút để đảm bảo pageMatches được cập nhật
+    await new Promise(resolve => setTimeout(resolve, 50));
     
     // Lấy trang đầu tiên có kết quả từ pageMatches
     let firstPage = -1;
@@ -545,11 +349,17 @@ async function searchAndWaitForResult(
   viewerWindow: any
 ): Promise<void> {
   return new Promise((resolve) => {
+    let resolved = false;
+    
     const onUpdate = (e: any) => {
-      // e.state: 0 = không tìm thấy, 1 = tìm thấy, 2 = đang tìm, 3 = wrapped
-      if (e.state === 0 || e.state === 1) {
-        eventBus.off("updatefindcontrolstate", onUpdate);
-        resolve();
+      // Chỉ resolve nếu query khớp với term đang tìm
+      if (e.query === term && !resolved) {
+        // e.state: 0 = không tìm thấy, 1 = tìm thấy, 2 = đang tìm, 3 = wrapped
+        if (e.state === 0 || e.state === 1) {
+          resolved = true;
+          eventBus.off("updatefindcontrolstate", onUpdate);
+          resolve();
+        }
       }
     };
 
@@ -563,6 +373,15 @@ async function searchAndWaitForResult(
       highlightAll: true,
       findPrevious: false,
     });
+
+    // Timeout để tránh treo vô hạn
+    setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        eventBus.off("updatefindcontrolstate", onUpdate);
+        resolve();
+      }
+    }, 5000);
   });
 }
 
@@ -851,22 +670,6 @@ const aiErrorResponse: ChatMessage = {
       1500 + Math.random() * 1000,
     );
   
-  };
-
-  const [term, setTerm] = useState("");
-  const [pages, setPages] = useState<number[]>([]);
-  const [loading, setLoading] = useState(false);
-
-// const handleSearch = async () => {
-//   setIsLoading(true);
-//   const results = await searchPagesForTermList(term);
-//   setPages(results);
-//   setIsLoading(false);
-// };
-  
-
-  const jumpToPage = (page: number) => {
-    setCurrentPage(page);
   };
 
   return (
