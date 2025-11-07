@@ -536,6 +536,13 @@ export default function Reader() {
       console.log("answer", (window as any).response);
       
       // Check if response is valid and has support.quote
+      // {found: false, support: {…}, answer: 'Xin lỗi, tôi không thể trả lời câu hỏi này dựa trên thông tin được cung cấp trong ngữ cảnh.', quiz: Array(0)}answer: "Xin lỗi, tôi không thể trả lời câu hỏi này dựa trên thông tin được cung cấp trong ngữ cảnh."found: falsequiz: []support: quote: ""[[Prototype]]: Object[[Prototype]]: Object
+      console.log((window as any).response);
+      console.log((window as any).response.support);
+      console.log((window as any).response.support.quote);
+
+
+
       if (!(window as any).response || !(window as any).response.support || !(window as any).response.support.quote) {
         throw new Error("Invalid response structure from API");
       }
@@ -550,7 +557,6 @@ export default function Reader() {
       // Get page citations
       const waitForCitationsList = await getCitationsList((window as any).responseCitations);
       (window as any).pageCitations = waitForCitationsList;
-      console.log("Page citations:", (window as any).pageCitations);
       
       // Create AI response message
       const aiResponse: ChatMessage = {
@@ -562,7 +568,7 @@ export default function Reader() {
         citations: (window as any).responseCitations,
         isError: false
       };
-      
+      console.log(aiResponse);
       setMessages((prev) => [...prev, aiResponse]);
       setIsLoading(false);
  
