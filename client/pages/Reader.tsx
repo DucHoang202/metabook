@@ -888,7 +888,7 @@ function parseWrappedJson(answerStr: string) {
   id="pdfFrame"
   ref={iframeRef}
   title="PDF Viewer"
-  src={`/pdfjs-build/web/viewer.html?file=${API_URL}/pdf/${(window as any).responseBook?.source_pdf}`}
+  src={`/pdfjs-build/web/viewer.html?file=${(window as any).encodedBookName}`}
   width="100%"
   height="800px"
 />
