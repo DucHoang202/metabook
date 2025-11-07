@@ -297,11 +297,67 @@ function getTwoSubsequentSentences(sentence1, sentence2, fullText) {
  * list: mảng các câu trích dẫn đã qua splitContext
  * @return mảng các trang đầu tiên chứa từng câu trích dẫn
  */
-/**
- * @params
- * list: mảng các câu trích dẫn đã qua splitContext
- * @return mảng các trang đầu tiên chứa từng câu trích dẫn
- */
+// async function getCitationsList(list: string[]) {
+//   const iframe = document.getElementById("pdfFrame") as HTMLIFrameElement;
+//   const viewerWindow = iframe.contentWindow as any;
+
+//   if (!viewerWindow?.PDFViewerApplication) {
+//     console.error("PDFViewerApplication chưa sẵn sàng");
+//     return [];
+//   }
+
+//   await viewerWindow.PDFViewerApplication.initializedPromise;
+
+//   const eventBus = viewerWindow.PDFViewerApplication.eventBus;
+//   const findController = viewerWindow.PDFViewerApplication.findController;
+//   const citationPages: number[] = [];
+
+//   for (const term of list) {
+//     // Tìm kiếm từng term
+//     await searchAndWaitForResult(term, eventBus, viewerWindow);
+    
+//     // Lấy trang đầu tiên có kết quả từ pageMatches
+//     let firstPage = -1;
+//     for (let pageIndex = 0; pageIndex < findController.pageMatches.length; pageIndex++) {
+//       const matches = findController.pageMatches[pageIndex];
+//       if (matches && matches.length > 0) {
+//         firstPage = pageIndex + 1; // +1 vì pageIndex bắt đầu từ 0
+//         break;
+//       }
+//     }
+    
+//     citationPages.push(firstPage);
+//   }
+
+//   return citationPages;
+// }
+
+// async function searchAndWaitForResult(
+//   term: string,
+//   eventBus: any,
+//   viewerWindow: any
+// ): Promise<void> {
+//   return new Promise((resolve) => {
+//     const onUpdate = (e: any) => {
+//       // e.state: 0 = không tìm thấy, 1 = tìm thấy, 2 = đang tìm, 3 = wrapped
+//       if (e.state === 0 || e.state === 1) {
+//         eventBus.off("updatefindcontrolstate", onUpdate);
+//         resolve();
+//       }
+//     };
+
+//     eventBus.on("updatefindcontrolstate", onUpdate);
+
+//     // Gửi sự kiện tìm kiếm
+//     viewerWindow.PDFViewerApplication.eventBus.dispatch("find", {
+//       type: "find",
+//       query: term,
+//       caseSensitive: false,
+//       highlightAll: true,
+//       findPrevious: false,
+//     });
+//   });
+// }
 async function getCitationsList(list: string[]) {
   const iframe = document.getElementById("pdfFrame") as HTMLIFrameElement;
   const viewerWindow = iframe.contentWindow as any;
@@ -318,21 +374,18 @@ async function getCitationsList(list: string[]) {
   const citationPages: number[] = [];
 
   for (const term of list) {
-    // Reset kết quả tìm kiếm trước khi tìm mới
-    findController.reset();
-    
-    // Tìm kiếm từng term và đợi kết quả
+    // Tìm kiếm từng term
     await searchAndWaitForResult(term, eventBus, viewerWindow);
     
-    // Đợi thêm một chút để đảm bảo pageMatches được cập nhật
-    await new Promise(resolve => setTimeout(resolve, 50));
+    // Đợi đủ lâu để kết quả được cập nhật hoàn toàn
+    await new Promise(resolve => setTimeout(resolve, 200));
     
     // Lấy trang đầu tiên có kết quả từ pageMatches
     let firstPage = -1;
     for (let pageIndex = 0; pageIndex < findController.pageMatches.length; pageIndex++) {
       const matches = findController.pageMatches[pageIndex];
       if (matches && matches.length > 0) {
-        firstPage = pageIndex + 1; // +1 vì pageIndex bắt đầu từ 0
+        firstPage = pageIndex + 1;
         break;
       }
     }
@@ -349,23 +402,16 @@ async function searchAndWaitForResult(
   viewerWindow: any
 ): Promise<void> {
   return new Promise((resolve) => {
-    let resolved = false;
-    
     const onUpdate = (e: any) => {
-      // Chỉ resolve nếu query khớp với term đang tìm
-      if (e.query === term && !resolved) {
-        // e.state: 0 = không tìm thấy, 1 = tìm thấy, 2 = đang tìm, 3 = wrapped
-        if (e.state === 0 || e.state === 1) {
-          resolved = true;
-          eventBus.off("updatefindcontrolstate", onUpdate);
-          resolve();
-        }
+      if (e.state === 0 || e.state === 1) {
+        eventBus.off("updatefindcontrolstate", onUpdate);
+        // Đợi thêm chút để đảm bảo pageMatches được cập nhật
+        setTimeout(resolve, 100);
       }
     };
 
     eventBus.on("updatefindcontrolstate", onUpdate);
 
-    // Gửi sự kiện tìm kiếm
     viewerWindow.PDFViewerApplication.eventBus.dispatch("find", {
       type: "find",
       query: term,
@@ -373,18 +419,8 @@ async function searchAndWaitForResult(
       highlightAll: true,
       findPrevious: false,
     });
-
-    // Timeout để tránh treo vô hạn
-    setTimeout(() => {
-      if (!resolved) {
-        resolved = true;
-        eventBus.off("updatefindcontrolstate", onUpdate);
-        resolve();
-      }
-    }, 5000);
   });
 }
-
 
   const handleSendMessage = async () => {
     const chat = document.getElementById("scrollMessages");
@@ -671,6 +707,7 @@ const aiErrorResponse: ChatMessage = {
     );
   
   };
+
 
   return (
     
