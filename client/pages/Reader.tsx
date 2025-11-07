@@ -401,15 +401,33 @@ async function searchAndWaitForResult(
   eventBus: any,
   viewerWindow: any
 ): Promise<void> {
+  console.time(`⏱ searchAndWaitForResult("${term}")`);
+  console.log("🔍 Bắt đầu tìm kiếm:", term);
+
   return new Promise((resolve) => {
+    const startDispatch = performance.now();
+
     const onUpdate = (e: any) => {
+      console.log("📡 Nhận sự kiện updatefindcontrolstate:", e.state);
+
       if (e.state === 0 || e.state === 1) {
+        const afterEvent = performance.now();
+        console.log(
+          `✅ Sự kiện hoàn tất sau ${(afterEvent - startDispatch).toFixed(2)}ms`
+        );
+
         eventBus.off("updatefindcontrolstate", onUpdate);
-        // Đợi thêm chút để đảm bảo pageMatches được cập nhật
-        setTimeout(resolve, 100);
+
+        console.time("⏳ Đợi cập nhật pageMatches");
+        setTimeout(() => {
+          console.timeEnd("⏳ Đợi cập nhật pageMatches");
+          console.timeEnd(`⏱ searchAndWaitForResult("${term}")`);
+          resolve();
+        }, 100);
       }
     };
 
+    console.time("🕐 Gửi sự kiện find");
     eventBus.on("updatefindcontrolstate", onUpdate);
 
     viewerWindow.PDFViewerApplication.eventBus.dispatch("find", {
@@ -419,8 +437,10 @@ async function searchAndWaitForResult(
       highlightAll: true,
       findPrevious: false,
     });
+    console.timeEnd("🕐 Gửi sự kiện find");
   });
 }
+
 
   const handleSendMessage = async () => {
     const chat = document.getElementById("scrollMessages");
