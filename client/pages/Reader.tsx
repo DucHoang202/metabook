@@ -376,10 +376,10 @@ async function getCitationsList(list: string[]) {
   for (const term of list) {
     // Tìm kiếm từng term
     await searchAndWaitForResult(term, eventBus, viewerWindow);
-    
+    console.log("1/2")
     // Đợi đủ lâu để kết quả được cập nhật hoàn toàn
     await new Promise(resolve => setTimeout(resolve, 200));
-    
+    console.log("2/2")
     // Lấy trang đầu tiên có kết quả từ pageMatches
     let firstPage = -1;
     for (let pageIndex = 0; pageIndex < findController.pageMatches.length; pageIndex++) {
@@ -677,9 +677,7 @@ const aiErrorResponse: ChatMessage = {
 
     setMessages((prev) => [...prev, aiErrorResponse]);
     setIsLoading(false);    
-  } finally {
-  
-    }
+  } 
          const waitForCitationsList = await getCitationsList((window as any).responseCitations);
        (window as any).pageCitations = waitForCitationsList;
       console.log("Page citations:", (window as any).pageCitations);
