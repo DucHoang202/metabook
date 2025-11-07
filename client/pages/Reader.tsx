@@ -883,7 +883,7 @@ function parseWrappedJson(answerStr: string) {
       <div className="flex h-[calc(100vh-80px)]">
         {/* PDF Viewer Panel */}
         
-<iframe
+{/* <iframe
   className="pdfFrame"
   id="pdfFrame"
   ref={iframeRef}
@@ -891,9 +891,25 @@ function parseWrappedJson(answerStr: string) {
   src={`/pdfjs-build/web/viewer.html?file=${(window as any).encodedBookName}`}
   width="100%"
   height="800px"
+/> */}
+{/* <iframe
+  className="pdfFrame"
+  id="pdfFrame"
+  ref={iframeRef}
+  title="PDF Viewer"
+  src={`/pdfjs-build/web/viewer.html?file=${(window as any).encodedBookName}`}
+  width="100%"
+  height="800px"
+/> */}
+ <iframe
+  className="pdfFrame"
+  id="pdfFrame"
+  ref={iframeRef}
+  title="PDF Viewer"
+  src={`/pdfjs-build/web/viewer.html?file=https://metabookbe.metapress.ai/fs/books/WTTStudio%20AI%20-%20T%E1%BA%A1o%20b%C3%A0i%20vi%E1%BA%BFt%20b%E1%BA%B1ng%20Smart%20Paragraph%20(2).pdf`}
+  width="100%"
+  height="800px"
 />
-
- 
  {/* AI Chat Panel */}
         <div
           className={`flex flex-col backdrop-blur-sm transition-all duration-300 ${
