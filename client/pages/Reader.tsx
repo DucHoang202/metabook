@@ -552,12 +552,6 @@ export default function Reader() {
       console.log("answer", (window as any).response);
       
       // Check if response is valid and has support.quote
-      // {found: false, support: {…}, answer: 'Xin lỗi, tôi không thể trả lời câu hỏi này dựa trên thông tin được cung cấp trong ngữ cảnh.', quiz: Array(0)}answer: "Xin lỗi, tôi không thể trả lời câu hỏi này dựa trên thông tin được cung cấp trong ngữ cảnh."found: falsequiz: []support: quote: ""[[Prototype]]: Object[[Prototype]]: Object
-      console.log((window as any).response);
-      console.log((window as any).response.support);
-      console.log((window as any).response.support.quote);
-
-
 
       if (!(window as any).response) {
         throw new Error("Invalid response structure from API");
@@ -786,7 +780,7 @@ export default function Reader() {
           id="pdfFrame"
           ref={iframeRef}
           title="PDF Viewer"
-          src={`/pdfjs-build/web/viewer.html?file=${API_URL}/pdf/${(window as any).responseBook?.source_pdf}`}
+          src={`/pdfjs-build/web/viewer.html?file=${(window as any).responseBook?.pdf_url}`}
           width="100%"
           height="800px"
         />
