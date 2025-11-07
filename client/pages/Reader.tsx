@@ -163,7 +163,7 @@ export default function Reader() {
           item.book_id?.toLowerCase().includes((window as any).bookId?.toLowerCase() || "")
         );
         (window as any).responseBook = responseBookMatch[0];
-        console.log((window as any).responseBook?.pdf_url);
+        (window as any).encodedBookName = ((window as any).responseBook?.source_url).replace(/ /g, "%20");
       } else {
         console.warn("Unexpected API format:", responseBook);
         (window as any).responseBook = [];
@@ -781,7 +781,7 @@ export default function Reader() {
           id="pdfFrame"
           ref={iframeRef}
           title="PDF Viewer"
-          src={`/pdfjs-build/web/viewer.html?file=${(window as any).responseBook?.pdf_url}`}
+          src={`/pdfjs-build/web/viewer.html?file=${ (window as any).encodedBookName}`}
           width="100%"
           height="800px"
         />
