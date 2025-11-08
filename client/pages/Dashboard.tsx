@@ -247,7 +247,7 @@ for (let i = 0; i < (window as any).responseBook.length; i++) {
                   Thư viện
                 </Link>
                 <Link
-                  to="/reader"
+                  to="/"
                   className="text-gray-600 hover:text-blue-600 transition-colors"
                 >
                   Đọc sách mẫu

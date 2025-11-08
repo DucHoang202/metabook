@@ -126,7 +126,7 @@ export default function UploadPage() {
   );
 
   const handleDemoUpload = useCallback(() => {
-    const mockFile = new File([""], "sample-book.pdf", {
+    const mockFile = new File([""], "./HuongDan.pdf", {
       type: "application/pdf",
     });
     setSelectedFile(mockFile);
