@@ -176,14 +176,14 @@ if (Array.isArray(metadataList) && bookId) {
 const foundBook = (window as any).foundBook;
 
 setBookData({
-  title: foundBook?.title ?? "Lãnh đạo Tương lai",
-  description: foundBook?.description ?? "Cuốn sách 'Lãnh đạo Tương lai' khám phá những kỹ năng và chiến lược cần thiết để trở thành một nhà lãnh đạo hiệu quả trong thế kỷ 21. Từ việc xây dựng tầm nhìn đến quản lý đội ngũ, cuốn sách cung cấp những bài học quý giá từ các nhà lãnh đạo hàng đầu thế giới.",
-  author: foundBook?.author ?? "Nguyễn Văn A, Trần Thị B",
+  title: foundBook?.title ?? "Không có tiêu đề",
+  description: foundBook?.description ?? "",
+  author: foundBook?.author ?? "",
   year: foundBook?.year ?? "2023",
   genres: foundBook?.genres ?? ["Kỹ năng sống", "Kinh doanh"],
   publisher: foundBook?.publisher ?? "Nhà xuất bản",
   pages: foundBook?.total_pages ?? 328,
-  isbn: "978-604-916-000-0",
+  isbn: "",
   contentType: foundBook?.contenttype ?? "Kỹ năng",
   digitalPrice: "150000",
   digitalQuantity: "1000",
