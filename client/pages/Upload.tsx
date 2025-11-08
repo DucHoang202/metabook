@@ -397,7 +397,7 @@ accept=".pdf,text/plain,application/msword,application/vnd.openxmlformats-office
                     </p>
                     <Button
                       className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                      onClick={handleDemoUpload}
+                      // onClick={handleDemoUpload}
                     >
                       <Sparkles className="w-4 h-4 mr-2" />
                       Thử với file PDF mẫu
