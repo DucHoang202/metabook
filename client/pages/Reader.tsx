@@ -477,7 +477,8 @@ async function searchAndWaitForResult(
       book_id: (window as any).bookId,
       k: 30,
       target_chars: 6600,
-      dry_run: false    };
+      dry_run: false    
+    };
 
           chat.scrollTop = chat.scrollHeight;
     try {
