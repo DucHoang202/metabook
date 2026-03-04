@@ -692,8 +692,25 @@ console.log((window as any).data);
 
       // Split context into sentences
       (window as any).response = parseWrappedJson((window as any).data.answer);
-      (window as any).responseCitationsRaw = splitContext((window as any).response.support.quote);
- 
+
+      if ((window as any).response?.support?.quote) {
+        (window as any).responseCitationsRaw =
+          splitContext((window as any).response.support.quote);
+
+        const awaitCitation = await searchCitation((window as any).responseCitationsRaw);
+        (window as any).responseCitations = awaitCitation;
+
+        console.log("Response citations:", (window as any).responseCitations);
+      }
+      else if ((window as any).data?.citations?.length) {
+        (window as any).responseCitationsRaw = (window as any).data.citations;
+
+        const awaitCitation = await searchCitation((window as any).responseCitationsRaw);
+        (window as any).responseCitations = awaitCitation;
+
+        console.log("Response citations:", (window as any).responseCitations);
+      }
+
       const awaitCitation = await searchCitation((window as any).responseCitationsRaw);
       (window as any).responseCitations = awaitCitation;
       console.log("Response citations:", (window as any).responseCitations);
