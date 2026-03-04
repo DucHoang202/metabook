@@ -688,32 +688,26 @@ function parseWrappedJson(answerStr: string) {
       //Get data
       (window as any).responseData = await res.json();
       (window as any).data = (window as any).responseData as QueryResponse;
-console.log((window as any).data);
+      console.log((window as any).data);
 
       // Split context into sentences
       (window as any).response = parseWrappedJson((window as any).data.answer);
 
+      let citationsRaw: any[] = [];
+
       if ((window as any).response?.support?.quote) {
-        (window as any).responseCitationsRaw =
-          splitContext((window as any).response.support.quote);
-
-        const awaitCitation = await searchCitation((window as any).responseCitationsRaw);
-        (window as any).responseCitations = awaitCitation;
-
-        console.log("Response citations:", (window as any).responseCitations);
+        citationsRaw = splitContext((window as any).response.support.quote);
       }
       else if ((window as any).data?.citations?.length) {
-        (window as any).responseCitationsRaw = (window as any).data.citations;
+        citationsRaw = (window as any).data.citations;
+      }
 
-        const awaitCitation = await searchCitation((window as any).responseCitationsRaw);
+      if (citationsRaw.length) {
+        const awaitCitation = await searchCitation(citationsRaw);
         (window as any).responseCitations = awaitCitation;
 
         console.log("Response citations:", (window as any).responseCitations);
       }
-
-      const awaitCitation = await searchCitation((window as any).responseCitationsRaw);
-      (window as any).responseCitations = awaitCitation;
-      console.log("Response citations:", (window as any).responseCitations);
  
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
