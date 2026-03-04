@@ -366,7 +366,9 @@ async function getCitationsList(list: string[]) {
     console.error("PDFViewerApplication chưa sẵn sàng");
     return [];
   }
-
+  if (!Array.isArray(list) || list.length === 0) {
+    return [];
+  }
   await viewerWindow.PDFViewerApplication.initializedPromise;
    console.log("0/2")
   const eventBus = viewerWindow.PDFViewerApplication.eventBus;
@@ -498,15 +500,26 @@ async function searchAndWaitForResult(
       //Get data
       (window as any).responseData = await res.json();
       (window as any).data = (window as any).responseData as QueryResponse;
-console.log((window as any).data);
+      console.log((window as any).data);
 
       // Split context into sentences
       (window as any).response = parseWrappedJson((window as any).data.answer);
-      (window as any).responseCitationsRaw = splitContext((window as any).response.support.quote);
- 
-      const awaitCitation = await searchCitation((window as any).responseCitationsRaw);
-      (window as any).responseCitations = awaitCitation;
-      console.log("Response citations:", (window as any).responseCitations);
+
+      let citationsRaw: string[] = [];
+
+      if ((window as any).response?.support?.quote) {
+        citationsRaw = splitContext((window as any).response.support.quote);
+      } 
+      else if ((window as any).data?.citations?.length) {
+        citationsRaw = (window as any).data.citations;
+      }
+
+      if (citationsRaw.length) {
+        const awaitCitation = await searchCitation(citationsRaw);
+        (window as any).responseCitations = awaitCitation;
+      } else {
+        (window as any).responseCitations = [];
+      }
  
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -544,7 +557,15 @@ const aiErrorResponse: ChatMessage = {
   } finally {
   
     }
-         const waitForCitationsList = await getCitationsList((window as any).responseCitations);
+        const citations = (window as any).responseCitations || [];
+
+let waitForCitationsList: number[] = [];
+
+if (citations.length) {
+  waitForCitationsList = await getCitationsList(citations);
+}
+
+(window as any).pageCitations = waitForCitationsList;
        (window as any).pageCitations = waitForCitationsList;
       console.log("Page citations:", (window as any).pageCitations);
    //const awaitCitation = await searchCitation((window as any).responseCitationsRaw);
@@ -1037,7 +1058,7 @@ const aiErrorResponse: ChatMessage = {
                           </p>
         
                           <div className="flex flex-wrap gap-1">
-                            {message.citations.map(
+                            {message.citations?.map(
                               (sentence: string, index: number) => (
                                 <Button
                                   key={index}
