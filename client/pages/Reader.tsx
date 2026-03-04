@@ -618,17 +618,29 @@ let i = 0;
 
   //Parse phản hồi
 function parseWrappedJson(answerStr: string) {
-  if (!answerStr) return null;
-
-  // Remove ```json and ``` markers
-  const cleaned = answerStr.replace(/```json\s*|```/g, "").trim();
+  if (!answerStr || typeof answerStr !== "string") return null;
 
   try {
-    const parsed = JSON.parse(cleaned);
-    return parsed; // {found, support, answer, ...}
+    let cleaned = answerStr.trim();
+
+    // remove ```json ``` block
+    cleaned = cleaned.replace(/```json\s*/i, "").replace(/```/g, "").trim();
+
+    // nếu không bắt đầu bằng { thì tìm JSON trong text
+    if (!cleaned.startsWith("{")) {
+      const match = cleaned.match(/\{[\s\S]*\}/);
+      if (match) {
+        cleaned = match[0];
+      } else {
+        return { answer: cleaned }; // chỉ là text
+      }
+    }
+
+    return JSON.parse(cleaned);
+
   } catch (err) {
     console.error("Failed to parse wrapped JSON:", err);
-    return null;
+    return { answer: answerStr }; // fallback
   }
 }
 
