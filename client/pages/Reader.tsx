@@ -889,24 +889,6 @@ const aiErrorResponse: ChatMessage = {
       <div className="flex h-[calc(100vh-80px)]">
         {/* PDF Viewer Panel */}
         
-{/* <iframe
-  className="pdfFrame"
-  id="pdfFrame"
-  ref={iframeRef}
-  title="PDF Viewer"
-  src={`/pdfjs-build/web/viewer.html?file=${(window as any).encodedBookName}`}
-  width="100%"
-  height="800px"
-/> */}
-{/* <iframe
-  className="pdfFrame"
-  id="pdfFrame"
-  ref={iframeRef}
-  title="PDF Viewer"
-  src={`/pdfjs-build/web/viewer.html?file=${(window as any).encodedBookName}`}
-  width="100%"
-  height="800px"
-/> */}
  <iframe
   className="pdfFrame"
   id="pdfFrame"
